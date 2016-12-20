@@ -1,0 +1,18 @@
+For showing dots and removing them through multi select option
+http://www.basicprimitives.com/index.php?option=com_content&view=article&id=58&Itemid=93&lang=en
+http://www.basicprimitives.com/index.php?option=com_content&view=article&id=36&Itemid=55&lang=en
+
+
+For dynamic buttons addition
+http://www.basicprimitives.com/index.php?option=com_content&view=article&id=6&Itemid=117&lang=en
+
+
+For Zooming:
+http://www.basicprimitives.com/index.php?option=com_content&view=article&id=78&Itemid=122&lang=en
+
+
+For highliting path
+http://www.basicprimitives.com/index.php?option=com_content&view=article&id=70&Itemid=114&lang=en
+
+
+http://jsfiddle.net/cyril123/0vbtvoon/22/

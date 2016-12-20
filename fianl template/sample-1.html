@@ -1,0 +1,103 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>The very first family chart</title>
+
+    <link rel="stylesheet" href="http://www.basicprimitives.com/demo/js/jquery/ui-lightness/jquery-ui-1.10.2.custom.css" />
+    <script type="text/javascript" src="http://www.basicprimitives.com/demo/js/jquery/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="http://www.basicprimitives.com/demo/js/jquery/jquery-ui-1.10.2.custom.min.js"></script>
+
+    <script type="text/javascript" src="http://www.basicprimitives.com/demo/js/primitives.min.js"></script>
+    <link href="http://www.basicprimitives.com/demo/css/primitives.latest.css" media="screen" rel="stylesheet" type="text/css" />
+
+    <script type='text/javascript'>//<![CDATA[ 
+        $(window).load(function () {
+            var options = new primitives.famdiagram.Config();
+
+            var items = [
+                new primitives.famdiagram.ItemConfig({
+                    id: 5,
+                    parent: null,
+                    title: "Scott Aasrud",
+                    description: "VP, Public Sector",
+                    image: "demo/images/photos/a.png"
+                }),
+                new primitives.famdiagram.ItemConfig({
+                    id: 1,
+                    parents: [5],
+                    title: "Ted Lucas",
+                    description: "VP, Human Resources",
+                    image: "demo/images/photos/b.png"
+                }),
+                new primitives.famdiagram.ItemConfig({
+                    id: 2,
+                    parents: [5],
+                    title: "Fritz Stüger",
+                    description: "Business Solutions, US",
+                    image: "demo/images/photos/c.png"
+                }),
+                new primitives.famdiagram.ItemConfig({
+                    id: 10,
+                    parents: [1],
+                    title: "Fritz Stüger",
+                    description: "Business Solutions, US",
+                    image: "demo/images/photos/c.png"
+                }),
+                new primitives.famdiagram.ItemConfig({
+                    id: 11,
+                    parents: [2],
+                    title: "Fritz Stüger",
+                    description: "Business Solutions, US",
+                    image: "demo/images/photos/c.png"
+                }),
+                new primitives.famdiagram.ItemConfig({
+                    id: 12,
+                    parents: [10,11],
+                    title: "Fritz Stüger",
+                    description: "Business Solutions, US",
+                    image: "demo/images/photos/c.png"
+                }),
+                new primitives.famdiagram.ItemConfig({
+                    id: 3,
+                    parents: [1,  2],
+                    title: "Fritz Stüger 2",
+                    description: "Business Solutions 2, US",
+                    image: "demo/images/photos/d.png"
+                })
+            ];
+
+            options.items = items;
+            options.cursorItem = 5;
+            options.hasButtons = primitives.common.Enabled.False;
+            options.hasSelectorCheckbox = primitives.common.Enabled.False;
+            options.orientationType = primitives.common.OrientationType.Top;
+            options.arrowsDirection = primitives.common.GroupByType.Children;
+
+            options.pageFitMode = primitives.common.PageFitMode.None;
+            options.onCursorChanged = function (e, data) {
+                alert("User clicked on item '" + data.context.title + "'.");
+            };
+            jQuery("#basicdiagram").famDiagram(options);
+             $("#btn50").button().click(function () { onScale(0.5); });
+            $("#btn100").button().click(function () { onScale(1); });
+            $("#btn150").button().click(function () { onScale(1.5); });
+        });//]]>  
+       
+            function onScale(scale) {
+            if (scale != null) {
+                jQuery("#basicdiagram").famDiagram({ scale: scale });
+            }
+            //jQuery("#basicdiagram").famDiagram("update", primitives.famDiagram.UpdateMode.Refresh);
+        }
+
+    </script>
+</head>
+<body>
+    <div id="basicdiagram" style="width: 1040px; height: 1380px; border-style: dotted; border-width: 1px;" />
+
+    <div id="btn50">50%</div>
+    <div id="btn100">100%</div>
+    <div id="btn150">150%</div>
+</body>
+</html>

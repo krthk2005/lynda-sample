@@ -1,0 +1,332 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>The very first family chart</title>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" />
+    <script  src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="  crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="  crossorigin="anonymous"></script>
+    <script type="text/javascript" src="underscore-min.js"></script>
+    <script type="text/javascript" src="chartDiagram.js"></script>
+    <script type="text/javascript" src="callchain.js"></script>
+    <link href="chartDiagram.css" media="screen" rel="stylesheet" type="text/css" />
+
+
+
+        
+    <link rel="stylesheet" href="libs/css/foundation.min.css" />
+
+
+<script type="text/javascript" src="callchain.js"></script>
+    <script type='text/javascript'>//<![CDATA[ 
+        $(document).ready(function() {
+            // ResizePlaceholder();
+
+            var options = new chartDiag.famChart.Config();
+
+            var items = [];
+            for (var i = dynamicData.length - 1; i >= 0; i--) {
+                items.push(new chartDiag.famChart.ItemConfig(dynamicData[i]));
+            }
+            options.items = items;
+            options.cursorItem = 5;
+            options.hasButtons = chartDiag.default.Enabled.False;
+            options.hasSelectorCheckbox = chartDiag.default.Enabled.Auto;
+            options.orientationType = chartDiag.default.OrientationType.Top;
+            options.selectedItems = [5, 50, 1, 2, 3, 10, 10001, 10003];
+            options.defaultTemplateName = "Zoom2";
+            options.normalItemsInterval = 20;
+            options.onItemRender = onTemplateRender;
+            options.templates = [getZoom0Template(), getZoom1Template(), getZoom2Template(), getZoom3Template(), getZoom4Template()];
+            options.arrowsDirection = chartDiag.default.GroupByType.Children;
+
+            //options.pageFitMode = chartDiag.default.PageFitMode.None;//onHighlightChanged//onCursorChanged
+            options.onCursorChanged = function(e, data) {
+                if (data.context.plusSymbol.length > 1) {
+                    $('#basicdiagramdialog').remove();
+                    var elm = '<div id="basicdiagramdialog" style="width: 540px; height: 480px; border-style: dotted; border-width: 1px;"></div>';
+                    $(elm).appendTo($('#dialog'));
+                    var list = _.where(dynamicData, {
+                        id: data.context.id
+                    });
+                    for (var i = 0; i < list[0].parents.length; i++) {
+                        list.push(_.where(dynamicData, {
+                            id: list[0].parents[i]
+                        })[0]);
+                    }
+                    if (list.length > 1) {
+                        if (list[1].parents != null)
+                            for (var i = 0; i < list[1].parents.length; i++) {
+                                list.push(_.where(dynamicData, {
+                                    id: list[1].parents[i]
+                                })[0]);
+                            }
+                    }
+                    var itemsDialog = [];
+                    for (var i = list.length - 1; i >= 0; i--) {
+                        itemsDialog.push(new chartDiag.famChart.ItemConfig(list[i]));
+                    }
+                    var optionsDialog = new chartDiag.famChart.Config();
+                    optionsDialog.items = itemsDialog;
+                    optionsDialog.cursorItem = 5;
+                    optionsDialog.hasButtons = chartDiag.default.Enabled.False;
+                    optionsDialog.hasSelectorCheckbox = chartDiag.default.Enabled.False;
+                    optionsDialog.orientationType = chartDiag.default.OrientationType.Top;
+                    optionsDialog.onItemRender = onTemplateRender;
+                    optionsDialog.arrowsDirection = chartDiag.default.GroupByType.Children;
+                    $("#basicdiagramdialog").famDiagram(optionsDialog);
+                    $("#dialog").dialog("open");
+                } else {
+                    $("#dialog").dialog("close");
+                }
+            };
+
+            $("#basicdiagram").famDiagram(options);
+
+            function onTemplateRender(event, data) {
+                switch (data.renderingMode) {
+                    case chartDiag.default.RenderingMode.Create:
+                        /* Initialize widgets here */
+                        break;
+                    case chartDiag.default.RenderingMode.Update:
+                        /* Update widgets here */
+                        break;
+                }
+
+                var itemConfig = data.context;
+
+                data.element.find("[name=photo]").attr({
+                    "src": itemConfig.image,
+                    "alt": itemConfig.title
+                });
+                data.element.find("[name=photo1]").attr({
+                    "src": itemConfig.plusSymbol
+                });
+                data.element.find("[name=main-layout]").attr({
+                    "id": "number" + itemConfig.id
+                });
+
+                data.element.find("[name=titleBackground]").css({
+                    "background": itemConfig.itemTitleColor
+                });
+
+                data.element.find("[name=label]").text(itemConfig.percent * 100.0 + '%');
+
+                var fields = ["title", "description", "phone", "email"];
+                for (var index = 0; index < fields.length; index++) {
+                    var field = fields[index];
+
+                    var element = data.element.find("[name=" + field + "]");
+                    if (element.text() != itemConfig[field]) {
+                        element.text(itemConfig[field]);
+                    }
+                }
+            }
+
+            function getZoom0Template() {
+                var result = new chartDiag.orgChart.TemplateConfig();
+                result.name = "Zoom0";
+
+                result.itemSize = new chartDiag.default.Size(100, 10);
+                result.minimizedItemSize = new chartDiag.default.Size(3, 3);
+                result.highlightPadding = new chartDiag.default.Thickness(2, 2, 2, 2);
+
+
+                var itemTemplate = jQuery(
+                    '<div class="bp-item">' + '<div name="title" class="bp-item" style="top: 0px; left: 0px; width: 100px; height: 10px; font-size: 8px; text-align:center;"></div>' + '</div>'
+                ).css({
+                    width: result.itemSize.width + "px",
+                    height: result.itemSize.height + "px"
+                }).addClass("bp-item");
+                result.itemTemplate = itemTemplate.wrap('<div>').parent().html();
+
+                return result;
+            }
+
+            function getZoom1Template() {
+                var result = new chartDiag.orgChart.TemplateConfig();
+                result.name = "Zoom1";
+
+                result.itemSize = new chartDiag.default.Size(120, 28);
+                result.minimizedItemSize = new chartDiag.default.Size(3, 3);
+                result.highlightPadding = new chartDiag.default.Thickness(2, 2, 2, 2);
+
+
+                var itemTemplate = jQuery(
+                    '<div class="bp-item">' + '<div name="title" class="bp-item" style="top: 0px; left: 0px; width: 120px; height: 12px; font-size: 10px; text-align:center;"></div>' + '<div name="description" class="bp-item" style="top: 14px; left: 0px; width: 120px; height: 12px; font-size: 10px; text-align:center;"></div>' + '</div>'
+                ).css({
+                    width: result.itemSize.width + "px",
+                    height: result.itemSize.height + "px"
+                }).addClass("bp-item");
+                result.itemTemplate = itemTemplate.wrap('<div>').parent().html();
+
+                return result;
+            }
+
+            function getZoom2Template() {
+                var result = new chartDiag.orgChart.TemplateConfig();
+                result.name = "Zoom2";
+
+                result.itemSize = new chartDiag.default.Size(140, 64);
+                result.minimizedItemSize = new chartDiag.default.Size(3, 3);
+                result.highlightPadding = new chartDiag.default.Thickness(2, 2, 2, 2);
+
+
+                var itemTemplate = jQuery(
+                    '<div class="bp-item">' + '<div  name="main-layout" style="width: 100%;height: 100%;">><div class="bp-item bp-photo-frame" style="top: 0px; left: 0px; width: 50px; height: 60px; overflow: hidden;">' + '<img name="photo1" style="height:20px; width:20px;position:absolute;"/><img name="photo" style="height:60px; width:50px;" />' + '</div>' + '<div name="title" class="bp-item" style="display:none;top: 2px; left: 56px; width: 84px; height: 12px; font-size: 10px; overflow: hidden;"></div>' + '<div name="email" class="bp-item" style="top: 14px; left: 56px; width: 84px; height: 12px; font-size: 10px; overflow: hidden;"></div>' + '<div name="description" class="bp-item" style="top: 15px; left: 56px; width: 84px; height: 62px; font-size: 10px; overflow: hidden;"></div></div>' + '</div>'
+                ).css({
+                    width: result.itemSize.width + "px",
+                    height: result.itemSize.height + "px"
+                }).addClass("bp-item");
+                result.itemTemplate = itemTemplate.wrap('<div>').parent().html();
+
+                return result;
+            }
+
+            function getZoom3Template() {
+                var result = new chartDiag.orgChart.TemplateConfig();
+                result.name = "Zoom3";
+
+                result.itemSize = new chartDiag.default.Size(160, 86);
+                result.minimizedItemSize = new chartDiag.default.Size(3, 3);
+                result.highlightPadding = new chartDiag.default.Thickness(2, 2, 2, 2);
+
+
+                var itemTemplate = jQuery(
+                    '<div class="bp-item bp-corner-all bt-item-frame" style="color:red;height: 62px !important;">' +
+                    '<div name="titleBackground" class="bp-item bp-corner-all bp-title-frame" style="display:none;top: 2px; left: 2px; width: 156px; height: 18px; overflow: hidden; text-align:center;">' +
+                    '<div name="title" class="bp-item bp-title" style="top: 2px; left: 2px; width: 152px; height: 14px; font-size: 11px; overflow: hidden;">' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="bp-item bp-photo-frame" style="left: 2px; width: 50px; height: 60px; overflow: hidden;"> ' + '<p>asdfsadfsadfasdfsdaf</p>' +
+                    '<img name="photo"  />' +
+                    '</div>' +
+                    '<div name="email" class="bp-item" style="top: 22px; left: 56px; width: 98px; height: 13px; font-size: 11px; overflow: hidden;"></div>' +
+                    '<div name="description" class="bp-item" style="top: 15px; left: 56px; width: 98px; height: 39px; font-size: 11px; overflow: hidden;">' +
+                    '</div>' +
+                    '</div>'
+                ).css({
+                    width: result.itemSize.width + "px",
+                    height: result.itemSize.height + "px"
+                }).addClass("bp-item bp-corner-all bt-item-frame");
+                result.itemTemplate = itemTemplate.wrap('<div>').parent().html();
+
+                return result;
+            }
+
+            function getZoom4Template() {
+                var result = new chartDiag.orgChart.TemplateConfig();
+                result.name = "Zoom4";
+
+                result.itemSize = new chartDiag.default.Size(220, 120);
+                result.minimizedItemSize = new chartDiag.default.Size(3, 3);
+                result.highlightPadding = new chartDiag.default.Thickness(2, 2, 2, 2);
+
+
+                var itemTemplate = jQuery(
+                    '<div class="bp-item bp-corner-all bt-item-frame">' + '<div name="titleBackground" class="bp-item bp-corner-all bp-title-frame" style="top: 2px; left: 2px; width: 216px; height: 20px; overflow: hidden;">' + '<div name="title" class="bp-item bp-title" style="top: 3px; left: 6px; width: 208px; height: 18px; overflow: hidden;">' + '</div>' + '</div>' + '<div class="bp-item bp-photo-frame" style="top: 26px; left: 2px; width: 50px; height: 60px; overflow: hidden;">' + '<img name="photo" style="height:60px; width:50px;" />' + '</div>' + '<div name="phone" class="bp-item" style="top: 26px; left: 56px; width: 162px; height: 18px; font-size: 12px; overflow: hidden;"></div>' + '<div name="email" class="bp-item" style="top: 44px; left: 56px; width: 162px; height: 18px; font-size: 12px; overflow: hidden;"></div>' + '<div name="description" class="bp-item" style="top: 62px; left: 56px; width: 162px; height: 36px; font-size: 10px; overflow: hidden;"></div>' + '</div>'
+                ).css({
+                    width: result.itemSize.width + "px",
+                    height: result.itemSize.height + "px"
+                }).addClass("bp-item bp-corner-all bt-item-frame");
+                result.itemTemplate = itemTemplate.wrap('<div>').parent().html();
+
+                return result;
+            }
+            $("#slider").slider({
+                value: 3,
+                min: 0,
+                max: 4,
+                step: 1,
+                slide: function(event, ui) {
+                    jQuery("#basicdiagram").famDiagram({
+                        defaultTemplateName: "Zoom" + ui.value
+                    });
+                    jQuery("#basicdiagram").famDiagram("update", chartDiag.orgChart.UpdateMode.Refresh);
+                }
+            });
+
+            $('#inputFilterText').keyup(function filterByText() {
+                var searchText = this.value;
+                for (var i = 0; i < dynamicData.length; i++) {
+                    $("#number" + dynamicData[i].id).css('background-color', 'White');
+                }
+                $(".orgChart").css('background-color', 'White');
+                if (searchText.length > 0) {
+                    if (options.pageFitMode != 0) {
+                        options.pageFitMode = chartDiag.default.PageFitMode.None;
+                        $("#basicdiagram").famDiagram(options);
+                    }
+                    var result = dynamicData.filter(function(chainNode) {
+                        return (chainNode.id == searchText || chainNode.parent == searchText ||
+                            chainNode.title == searchText || chainNode.plusSymbol == searchText ||
+                            chainNode.description == searchText || chainNode.image == searchText);
+                    });
+
+                    for (var i = 0; i < result.length; i++) {
+                        $("#number" + result[i].id).css({
+                            'background-color': 'yellow',
+                            border: '2px solid #fbd850'
+                        });
+                        var container = $('.orgChart'),
+                            scrollTo = $("#number" + result[i].id);
+
+                        container.scrollTop(
+                            scrollTo.offset().top - container.offset().top + container.scrollTop()
+                        );
+
+                        // Or you can animate the scrolling:
+                        container.animate({
+                            scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
+                        });
+                    }
+
+                    var allResults = dynamicData.filter(function(chainNode) {
+                        return (chainNode.id != searchText && chainNode.parent != searchText &&
+                            chainNode.title != searchText && chainNode.plusSymbol != searchText &&
+                            chainNode.description != searchText && chainNode.image != searchText);
+                    });
+                    if (result.length > 0) {
+                        for (var i = 0; i < allResults.length; i++) {
+                            $("#number" + allResults[i].id).css('background-color', 'grey');
+                        }
+                        $(".orgChart").css('background-color', 'grey');
+
+                    }
+                } else {
+                    if (options.pageFitMode != 3) {
+                        options.pageFitMode = chartDiag.default.PageFitMode.FitToPage;
+                        $("#basicdiagram").famDiagram(options);
+                    }
+                }
+
+            });
+
+
+        }); //]]>
+
+       
+    </script>
+</head>
+<body>
+    <input type="text" id="inputFilterText" style="width: 175px;"/>
+    <div id="dialog" title="View">
+    <div></div>
+    </div>
+    Zoom:
+    <div id="slider" style="width: 200px; height: 8px; font-size: 62.5%;"></div>
+    <div id="basicdiagram" style="width: 540px; height: 480px; border-style: dotted; border-width: 1px;" ></div>
+    <script>
+        $(function() {
+            $("#dialog").dialog({
+                autoOpen: false,
+                height: 500,
+                width: 560,
+                modal: false
+
+            });
+        });
+    </script>
+</body>
+</html>
